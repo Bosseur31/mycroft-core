@@ -244,6 +244,10 @@ class TTS(object):
         """
         pass
 
+    def modify_tag(self, tag):
+        """Override to modify each supported ssml tag"""
+        return tag
+
     def validate_ssml(self, utterance):
         """
             Check if engine supports ssml, if not remove all tags
@@ -260,6 +264,8 @@ class TTS(object):
 
         supported_tags = self.supported_tags + self.extra_tags
 
+        LOG.info('SUPPORTED TAGS:' + str(supported_tags))
+
         # find ssml tags in string
         tags = re.findall('<[^>]*>', utterance)
 
@@ -268,11 +274,15 @@ class TTS(object):
             for supported in supported_tags:
                 if supported in tag:
                     flag = True  # supported
-            if not flag:
+            if flag:
+                if tag[1] != '/':
+                    utterance = utterance.replace(tag, self.modify_tag(tag))
+            else:
                 # remove unsupported tag
                 utterance = utterance.replace(tag, "")
 
         # return text with supported ssml tags only
+        LOG.info('---------- UTT: ' + str(utterance) + ' ----------')
         return utterance.replace("  ", " ")
 
     def validate_and_execute(self, sentence, ident=None):

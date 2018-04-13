@@ -99,6 +99,14 @@ class Mimic(TTS):
             t.daemon = True
             t.start()
 
+    def modify_tag(self, tag):
+        for speed, number in [
+            ('slow', '0.7'),
+            ('fast', '1.3')
+        ]:
+            tag = tag.replace(speed, number)
+        return tag
+
     @property
     def args(self):
         """ Build mimic arguments. """
